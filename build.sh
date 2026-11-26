@@ -127,8 +127,14 @@ python3 "$ROOT/scripts/validate_artifact.py" \
   "$OUT/media3-decoder-ffmpeg-1.4.1-flac-armv7-arm64.aar" \
   "$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf" \
   "$OUT/aar-validation.txt"
-sha256sum "$OUT"/*.aar > "$OUT/SHA256SUMS.txt"
+(
+  cd "$OUT"
+  sha256sum ./*.aar > SHA256SUMS.txt
+)
+cat "$OUT/SHA256SUMS.txt"
+AAR_SIZE_BYTES="$(stat -c '%s' "$OUT/media3-decoder-ffmpeg-1.4.1-flac-armv7-arm64.aar")"
 
+test "$AAR_SIZE_BYTES" -gt 0
 NDK_REVISION="$(grep '^Pkg.Revision' "$NDK/source.properties" | head -1 | cut -d= -f2- | xargs)"
 cat > "$OUT/build-manifest.txt" <<EOF
 Media3 version: $MEDIA_VERSION
@@ -147,6 +153,7 @@ ABIs: armeabi-v7a, arm64-v8a
 Enabled FFmpeg decoder: flac
 FFmpeg components: static avcodec/avutil/swresample; no avformat/video pipeline
 AAR SHA-256: $(sha256sum "$OUT/media3-decoder-ffmpeg-1.4.1-flac-armv7-arm64.aar" | cut -d' ' -f1)
+AAR size bytes: $AAR_SIZE_BYTES
 EOF
 printf 'build_status=SUCCESS\n' > "$OUT/build-status.txt"
 cat "$OUT/build-manifest.txt"
