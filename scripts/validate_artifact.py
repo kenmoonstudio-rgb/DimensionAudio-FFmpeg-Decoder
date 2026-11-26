@@ -21,6 +21,9 @@ with zipfile.ZipFile(aar) as archive:
         if required not in names or archive.getinfo(required).file_size == 0:
             raise SystemExit(f"Invalid AAR: missing or empty {required}")
     native = sorted(n for n in names if n.startswith("jni/") and n.endswith(".so"))
+    actual_abis = {n.split("/")[1] for n in native if len(n.split("/")) > 2}
+    if actual_abis != set(expected):
+        raise SystemExit(f"Unexpected ABI set: expected {sorted(expected)}, got {sorted(actual_abis)}")
     lines.append(f"AAR: {aar.name}")
     lines.append(f"AAR SHA-256: {hashlib.sha256(aar.read_bytes()).hexdigest()}")
     lines.append("AAR entries:")

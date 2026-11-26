@@ -68,6 +68,28 @@ git -C "$FFMPEG_DIR" reset --hard "$FFMPEG_REF"
 FFMPEG_COMMIT="$(git -C "$FFMPEG_DIR" rev-parse HEAD)"
 
 MODULE_MAIN="$MEDIA_DIR/libraries/decoder_ffmpeg/src/main"
+MODULE_GRADLE="$MEDIA_DIR/libraries/decoder_ffmpeg/build.gradle"
+[[ -f "$MODULE_GRADLE" ]] || { echo "Media3 FFmpeg module build.gradle missing"; exit 3; }
+cp "$MODULE_GRADLE" "$OUT/media3-1.4.1-decoder_ffmpeg-build.gradle.original"
+sha256sum "$MODULE_GRADLE" | tee "$OUT/media3-1.4.1-decoder_ffmpeg-build.gradle.original.sha256"
+python3 - "$MODULE_GRADLE" <<'PY'
+from pathlib import Path
+import sys
+path = Path(sys.argv[1])
+text = path.read_text()
+anchor = "android.namespace = 'androidx.media3.decoder.ffmpeg'\n"
+if text.count(anchor) != 1:
+    raise SystemExit('Unexpected Media3 FFmpeg module Gradle file; refusing to patch')
+abi_filter = """android {
+    defaultConfig {
+        ndk {
+            abiFilters 'armeabi-v7a', 'arm64-v8a'
+        }
+    }
+}
+"""
+path.write_text(text.replace(anchor, anchor + '\n' + abi_filter))
+PY
 JNI_DIR="$MODULE_MAIN/jni"
 OFFICIAL_SCRIPT="$JNI_DIR/build_ffmpeg.sh"
 [[ -f "$OFFICIAL_SCRIPT" ]] || { echo "Media3 1.4.1 official FFmpeg build script missing"; exit 3; }

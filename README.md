@@ -22,12 +22,13 @@ The workflow uploads `output/` even if the build fails, so logs and failure stat
 - `aar-validation.txt` (AAR entries and per-ABI ELF validation)
 - `media3-1.4.1-build_ffmpeg.sh` (the unmodified upstream script used as source)
 - `media3-official-build-script.sha256`
+- Original Media3 module Gradle file plus SHA-256, documenting the ARM-only ABI filter
 - `build-status.txt`
 - `SHA256SUMS.txt`
 
 ## Feature and ABI scope
 
-The official FFmpeg build script is configured with `--disable-everything --enable-decoder=flac`. The required static `avcodec`, `avutil`, and `swresample` components are linked into Media3's `libffmpegJNI.so`; no FFmpeg shared `libav*.so`, video pipeline, encoder set, or avformat demuxer is added. Media3's own FLAC extractor remains part of Media3 and is not replaced.
+The official FFmpeg build script is configured with `--disable-everything --enable-decoder=flac`; the isolated Media3 module build is also configured with an ARM-only Gradle `abiFilters` block so CMake does not try to build unrequested x86 variants. The required static `avcodec`, `avutil`, and `swresample` components are linked into Media3's `libffmpegJNI.so`; no FFmpeg shared `libav*.so`, video pipeline, encoder set, or avformat demuxer is added. Media3's own FLAC extractor remains part of Media3 and is not replaced.
 
 The build overrides Media3 1.4.1 default minSdk 19 to 27 in the isolated checkout, controlling AAR metadata and Gradle CMake target. FFmpeg cross-compilation also uses API 27, matching Android 8.1. A successful build proves both ABI binaries were compiled against that API target, but loading must still be confirmed on actual API 27 hardware in the later integration step.
 
