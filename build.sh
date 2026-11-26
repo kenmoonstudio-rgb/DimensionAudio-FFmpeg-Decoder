@@ -119,7 +119,7 @@ chmod +x "$WORK/build_ffmpeg_arm_only.sh"
 
 cd "$MEDIA_DIR"
 ./gradlew --no-daemon --stacktrace :lib-decoder-ffmpeg:assembleRelease
-AAR="$(find "$MEDIA_DIR/buildout/lib-decoder-ffmpeg/outputs/aar" -maxdepth 1 -type f -name '*.aar' -print -quit)"
+AAR="$(find "$MEDIA_DIR/libraries/decoder_ffmpeg/buildout/outputs/aar" -maxdepth 1 -type f -name '*.aar' -print -quit)"
 [[ -n "$AAR" && -f "$AAR" ]] || { echo 'Gradle completed but no decoder FFmpeg AAR was found'; exit 4; }
 cp "$AAR" "$OUT/media3-decoder-ffmpeg-1.4.1-flac-armv7-arm64.aar"
 
