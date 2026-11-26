@@ -1,0 +1,53 @@
+name: Build Media3 1.4.1 FFmpeg FLAC AAR
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+    paths:
+      - '.github/workflows/build.yml'
+      - 'build.sh'
+      - 'scripts/**'
+      - 'versions.lock'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Checkout standalone build project
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK and pinned native toolchain
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK components
+        run: |
+          yes | sdkmanager --licenses >/dev/null
+          sdkmanager \
+            'platforms;android-34' \
+            'build-tools;34.0.0' \
+            'cmake;3.22.1' \
+            'ndk;26.1.10909125'
+
+      - name: Build and validate AAR
+        shell: bash
+        run: bash ./build.sh
+
+      - name: Upload AAR, manifests, and full build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: media3-1.4.1-ffmpeg-flac-armv7-arm64
+          path: output/
+          if-no-files-found: warn
+          retention-days: 30
