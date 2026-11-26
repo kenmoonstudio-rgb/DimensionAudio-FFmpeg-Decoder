@@ -17,6 +17,9 @@ jobs:
   build:
     runs-on: ubuntu-24.04
     timeout-minutes: 90
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
     steps:
       - name: Checkout standalone build project
         uses: actions/checkout@v4
@@ -26,9 +29,6 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-
-      - name: Set up Android SDK and pinned native toolchain
-        uses: android-actions/setup-android@v3
 
       - name: Install Android SDK components
         run: |
