@@ -86,7 +86,7 @@ from pathlib import Path
 import sys
 src, dst = map(Path, sys.argv[1:])
 text = src.read_text()
-marker = './configure \\\n    --libdir=android-libs/x86\n'
+marker = './configure \\\n    --libdir=android-libs/x86 \\\n'
 if text.count(marker) != 1:
     raise SystemExit('Unexpected official Media3 build script layout; refusing to patch')
 text = text.split(marker, 1)[0].rstrip() + '\n'
